@@ -1,0 +1,170 @@
+.testimonials { background: var(--light); }
+
+/* ─── ROUNDED GREEN CONTAINER ─── */
+
+.testimonials__container {
+  position: relative;
+  max-width: 1320px;
+  margin: 0 auto;
+  border-radius: 32px;
+  overflow: hidden;
+  padding: clamp(40px, 5vw, 72px);
+}
+
+.testimonials__shader {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 32px;
+  overflow: hidden;
+}
+
+.testimonials__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.testimonials__head {
+  margin-bottom: 48px;
+  max-width: 760px;
+}
+.testimonials__head .eyebrow { margin-bottom: 24px; }
+.testimonials__head h2 { font-size: clamp(40px, 5.4vw, 72px); }
+
+/* ─── HEADING ENTRANCE ─── */
+
+.testimonials__eyebrow {
+  color: rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+}
+
+.testimonials__display {
+  color: var(--light);
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+  transition-delay: .12s;
+}
+
+.testimonials__display em {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.testimonials.is-visible .testimonials__eyebrow,
+.testimonials.is-visible .testimonials__display {
+  opacity: 1;
+  transform: none;
+}
+
+/* ─── CARDS GRID ─── */
+
+.tcards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+/* ─── CARD ENTRANCE — staggered float-up with fade ─── */
+
+.tcard {
+  background: var(--light);
+  border-radius: 14px;
+  padding: 36px 32px;
+  display: flex; flex-direction: column;
+  box-shadow: 0 1px 2px rgba(0,0,0,.1), 0 10px 32px -22px rgba(0,0,0,.2);
+  border: 1px solid rgba(255,255,255,.12);
+
+  /* Pre-animation state */
+  opacity: 0;
+  transform: translateY(48px) scale(0.97);
+  transition:
+    opacity .7s cubic-bezier(.22, 1, .36, 1),
+    transform .7s cubic-bezier(.22, 1, .36, 1),
+    box-shadow .5s var(--ease);
+  transition-delay: calc(0.3s + var(--card-index) * 0.15s);
+}
+
+.testimonials.is-visible .tcard {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.tcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 20px 44px -22px rgba(0,0,0,.3);
+}
+
+/* ─── CARD CONTENT ─── */
+
+.tcard__stars {
+  color: var(--primary);
+  letter-spacing: .12em;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+.tcard__title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-size: 19px;
+  line-height: 1.2;
+  color: var(--primary);
+  margin-bottom: 14px;
+}
+.tcard__quote {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--muted);
+  margin-bottom: 28px;
+  flex: 1;
+}
+.tcard__meta {
+  display: flex; align-items: center; gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(26,26,26,.06);
+}
+.tcard__avatar {
+  width: 36px; height: 36px;
+  border-radius: 3px;
+  background: color-mix(in oklch, var(--primary) 12%, var(--light));
+  color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--sans); font-weight: 500;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.tcard__name {
+  font-family: var(--sans); font-weight: 500;
+  font-size: 13px; color: var(--dark);
+  letter-spacing: .02em;
+}
+.tcard__source {
+  font-family: var(--sans); font-size: 9px; font-weight: 500;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+@media (max-width: 900px) {
+  .testimonials__container {
+    border-radius: 24px;
+    padding: clamp(28px, 4vw, 48px);
+  }
+  .tcards { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonials__eyebrow,
+  .testimonials__display,
+  .tcard {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

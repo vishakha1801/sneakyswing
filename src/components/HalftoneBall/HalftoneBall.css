@@ -1,0 +1,22 @@
+.halftone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.halftone__canvas {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+}
+
+@media (max-width: 900px) {
+  .halftone {
+    justify-content: center;
+  }
+  .halftone__canvas {
+    max-width: 128px;
+  }
+}

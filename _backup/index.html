@@ -1,0 +1,1480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>SneakySwing — The Future of Golf Coaching</title>
+<meta name="description" content="A quiet AI companion for the long game. SneakySwing helps golfers improve their swings through AI feedback, personalized drills, and real coaches in the loop." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="icon" href="sneakyswing.png" type="image/png" />
+<link rel="apple-touch-icon" href="sneakyswing.png" />
+<link rel="preload" as="video" href="sneakyswing-hero.mp4" type="video/mp4" />
+
+<style>
+  :root{
+    --forest:#2D4A2E;
+    --forest-mid:#4A6B47;
+    --sage:#8FA978;
+    --sage-pale:#C8D4B0;
+    --moss:#6B8454;
+    --cream:#EFE9D4;
+    --cream-warm:#E8DDB8;
+    --paper:#F2EBD4;
+    --gold:#E8A552;
+    --gold-deep:#C77B2E;
+    --gold-soft:#F2C988;
+    --ink:#1F2E1A;
+    --ink-soft:#4A5238;
+    --ink-mute:#7A7A60;
+    --rose:#D4A5A0;
+
+    --serif:'Fraunces', 'Cormorant Garamond', Georgia, serif;
+    --sans:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --ease-soft:cubic-bezier(.4,0,.2,1);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:auto;-webkit-text-size-adjust:100%;}
+  body{
+    font-family:var(--serif);
+    font-weight:300;
+    font-size:18px;
+    line-height:1.6;
+    color:var(--ink);
+    background:var(--paper);
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.16 0 0 0 0 0.18 0 0 0 0 0.10 0 0 0 0.18 0'/></filter><rect width='400' height='400' filter='url(%23n)' opacity='0.55'/></svg>");
+    background-size:400px 400px;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* Fixed grain overlays for atmosphere */
+  body::before,body::after{
+    content:'';
+    position:fixed;inset:0;
+    pointer-events:none;
+    z-index:1000;
+  }
+  body::before{
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/></filter><rect width='220' height='220' filter='url(%23n)' opacity='0.35'/></svg>");
+    background-size:220px 220px;
+    mix-blend-mode:multiply;
+    opacity:.35;
+  }
+  body::after{
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.012 0.45' numOctaves='1' stitchTiles='stitch' seed='4'/></filter><rect width='600' height='600' filter='url(%23n)' opacity='0.7'/></svg>");
+    background-size:600px 600px;
+    mix-blend-mode:overlay;
+    opacity:.14;
+  }
+
+  ::selection{background:var(--forest);color:var(--cream);}
+
+  a{color:inherit;text-decoration:none;}
+  img,svg,video{display:block;max-width:100%;}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
+
+  /* ───────────────── NAV ───────────────── */
+  .nav{
+    position:fixed;
+    top:14px;
+    left:50%;
+    transform:translateX(-50%) scale(1.21);
+    transform-origin:top center;
+    z-index:1200;
+    width:min(92vw, 380px);
+    min-height:43px;
+    padding:6px 7px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    border-radius:12px;
+    color:var(--cream);
+    background:rgba(106, 91, 143, 0.1);
+    border:1px solid rgba(255,255,255,.12);
+    backdrop-filter:saturate(125%) blur(8px);
+    -webkit-backdrop-filter:saturate(125%) blur(8px);
+    box-shadow:0 10px 24px -22px rgba(18,12,26,.7), inset 0 1px 0 rgba(255,255,255,.08);
+    transition:background .35s var(--ease), border-color .35s var(--ease), box-shadow .35s var(--ease), color .35s var(--ease);
+  }
+  .nav.scrolled{
+    color:var(--ink-soft);
+    background:rgba(255, 255, 255, 0.2);
+    border-color:rgba(31,46,26,.14);
+    box-shadow:0 12px 32px -16px rgba(31,46,26,.18), inset 0 1px 0 rgba(255,255,255,.22);
+    backdrop-filter:saturate(140%) blur(14px);
+    -webkit-backdrop-filter:saturate(140%) blur(14px);
+  }
+  .nav.scrolled .nav__logo{
+    background:rgba(31,46,26,.08);
+    color:var(--ink-soft);
+  }
+  .nav.scrolled .nav__links a{
+    color:#3f4636;
+    opacity:1;
+    font-weight:400;
+    text-shadow:none;
+  }
+  .nav.scrolled .nav__links a:hover{
+    color:var(--ink);
+  }
+  .nav__brand{
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .nav__logo{
+    width:29px;
+    height:29px;
+    border-radius:8px;
+    background:rgba(255,255,255,.08);
+    display:grid;
+    place-items:center;
+    flex-shrink:0;
+    overflow:hidden;
+  }
+  .nav__logo img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+  }
+  .nav__links{
+    display:flex;
+    gap:19px;
+    align-items:center;
+    margin-left:2px;
+    margin-right:auto;
+  }
+  .nav__links a{
+    font-family:var(--sans);
+    font-size:clamp(9px,0.75vw,19px);
+    font-weight:400;
+    letter-spacing:-.015em;
+    opacity:.95;
+    transition:opacity .25s var(--ease);
+  }
+  .nav__links a:hover{opacity:1;}
+  .nav__cta{
+    font-family:var(--sans);
+    font-size:clamp(8px,0.63vw,14px);
+    font-weight:400;
+    letter-spacing:-.01em;
+    background:#171d25;
+    color:#f8fbff;
+    padding:8px 11px 8px 13px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.16);
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:transform .3s var(--ease), filter .3s var(--ease), background .3s var(--ease);
+  }
+  .nav__cta::after{
+    content:'›';
+    width:12px;
+    height:12px;
+    border-radius:999px;
+    background:rgba(255,255,255,.18);
+    display:grid;
+    place-items:center;
+    font-size:10px;
+    line-height:1;
+  }
+  .nav__cta:hover{filter:brightness(1.08);transform:translateY(-1px);}
+  .nav.scrolled .nav__cta{
+    background:var(--ink);
+    color:var(--cream);
+    border-color:rgba(31,46,26,.2);
+  }
+  .nav.scrolled .nav__cta::after{
+    background:rgba(239,233,212,.22);
+    color:var(--cream);
+  }
+
+  .nav__menu{display:none;}
+
+  @media (max-width:900px){
+    .nav{
+      top:10px;
+      width:min(96vw, 360px);
+      min-height:40px;
+      border-radius:12px;
+      padding:6px 7px;
+    }
+    .nav__logo{
+      width:26px;
+      height:26px;
+      border-radius:7px;
+    }
+    .nav__links{
+      gap:12px;
+    }
+    .nav__links a{
+      font-size:10px;
+      letter-spacing:0;
+    }
+    .nav__cta{
+      font-size:9px;
+      padding:6px 8px 6px 9px;
+      border-radius:9px;
+      gap:5px;
+    }
+    .nav__cta::after{
+      width:11px;
+      height:11px;
+      font-size:9px;
+    }
+  }
+  @media (max-width:680px){
+    .nav__links{
+      display:none;
+    }
+  }
+
+  /* ───────────────── HERO (scroll-scrub) ───────────────── */
+  .hero{
+    position:relative;
+    height:220vh;
+    background:var(--forest);
+  }
+  .hero__sticky{
+    position:sticky;top:0;
+    height:100vh;
+    overflow:hidden;
+    background:var(--forest);
+  }
+  .hero__video{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+    will-change:opacity;
+    opacity:0;
+    transition:opacity .8s var(--ease-soft);
+  }
+  .hero__video.ready{opacity:1;}
+
+  /* Painterly integration overlays */
+  .hero__vignette{
+    position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(120% 80% at 50% 50%, transparent 55%, rgba(31,46,26,.32) 100%),
+      linear-gradient(to bottom, rgba(31,46,26,.18) 0%, transparent 22%, transparent 75%, rgba(31,46,26,.28) 100%);
+  }
+  .hero__grain{
+    position:absolute;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='300' height='300' filter='url(%23n)' opacity='0.5'/></svg>");
+    background-size:300px 300px;
+    mix-blend-mode:multiply;
+    opacity:.28;
+  }
+
+  /* Transition strip between hero and pitch — no layout gap until hero scroll finishes */
+  .hero__blend{
+    --blend-ash:#5c6058;
+    --blend-stone:#8a8e86;
+    display:block;
+    width:100%;
+    min-height:0;
+    max-height:0;
+    overflow:hidden;
+    pointer-events:none;
+    opacity:0;
+    transition:max-height .5s var(--ease-soft), opacity .5s var(--ease-soft);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--ink) 62%, var(--blend-ash) 38%) 0%,
+        color-mix(in srgb, var(--ink) 62%, var(--blend-ash) 38%) 19.555%,
+        transparent 19.555%,
+        transparent 26.815%,
+        color-mix(in srgb, var(--forest) 64%, var(--blend-ash) 36%) 26.815%,
+        color-mix(in srgb, var(--forest) 64%, var(--blend-ash) 36%) 46.37%,
+        transparent 46.37%,
+        transparent 53.63%,
+        color-mix(in srgb, var(--forest-mid) 60%, var(--blend-stone) 40%) 53.63%,
+        color-mix(in srgb, var(--forest-mid) 60%, var(--blend-stone) 40%) 73.185%,
+        transparent 73.185%,
+        transparent 80.445%,
+        color-mix(in srgb, var(--sage-pale) 52%, var(--blend-stone) 48%) 80.445%,
+        color-mix(in srgb, var(--sage-pale) 52%, var(--blend-stone) 48%) 100%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--ink) 28%, var(--blend-ash) 72%) 0%,
+        color-mix(in srgb, var(--sage-pale) 22%, var(--blend-stone) 78%) 100%
+      );
+  }
+  .hero__blend.is-visible{
+    max-height:28px;
+    min-height:clamp(14px,2.4vw,22px);
+    opacity:1;
+  }
+
+  .hero__loading{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--gold-soft);
+    font-family:var(--serif);
+    font-style:italic;font-weight:300;
+    font-size:24px;letter-spacing:.02em;
+    z-index:2;
+    transition:opacity .8s var(--ease-soft);
+  }
+  .hero__loading.hidden{opacity:0;pointer-events:none;}
+
+  .hero__closing{
+    position:absolute;
+    left:0;right:0;
+    bottom:18vh;
+    text-align:center;
+    z-index:3;
+    opacity:0;
+    transition:opacity 1s var(--ease-soft);
+    pointer-events:none;
+  }
+  .hero__closing.visible{opacity:1;}
+  .hero__closing span{
+    font-family:var(--serif);
+    font-style:italic;font-weight:300;
+    font-size:clamp(38px,6vw,76px);
+    color:var(--cream);
+    letter-spacing:-.01em;
+    line-height:1;
+    text-shadow:0 2px 30px rgba(31,46,26,.4);
+  }
+
+  /* Scroll affordance */
+  .hero__scroll{
+    position:absolute;
+    left:50%;bottom:34px;
+    transform:translateX(-50%);
+    z-index:3;
+    color:var(--cream);
+    font-family:var(--sans);
+    font-size:10px;font-weight:500;
+    letter-spacing:.32em;text-transform:uppercase;
+    opacity:.7;
+    display:flex;flex-direction:column;align-items:center;gap:14px;
+    transition:opacity .6s var(--ease);
+  }
+  .hero__scroll.faded{opacity:0;}
+  .hero__scroll::after{
+    content:'';
+    width:1px;height:42px;
+    background:linear-gradient(to bottom, var(--cream) 0%, transparent 100%);
+    animation:scrollLine 2.4s var(--ease) infinite;
+  }
+  @keyframes scrollLine{
+    0%,100%{transform:scaleY(.4);transform-origin:top;opacity:.3;}
+    50%{transform:scaleY(1);opacity:.9;}
+  }
+
+  /* ───────────────── SECTIONS ───────────────── */
+  .section{
+    padding:clamp(80px,11vw,180px) clamp(24px,5vw,72px);
+    position:relative;
+  }
+  .container{max-width:1280px;margin:0 auto;}
+
+  .eyebrow{
+    font-family:var(--sans);
+    font-size:11px;font-weight:500;
+    letter-spacing:.32em;text-transform:uppercase;
+    color:var(--ink-mute);
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  .eyebrow::before{
+    content:'';
+    display:inline-block;width:24px;height:1px;
+    background:var(--ink-mute);
+  }
+
+  .display{
+    font-family:var(--serif);
+    font-weight:300;
+    line-height:1.02;
+    letter-spacing:-.02em;
+    color:var(--ink);
+  }
+  .display em{
+    font-style:italic;
+    font-weight:300;
+    color:var(--forest);
+  }
+
+  /* ───────────────── PITCH ───────────────── */
+  .pitch{
+    background:linear-gradient(180deg, var(--paper) 0%, var(--cream) 100%);
+  }
+  .pitch__inner{
+    max-width:920px;
+    text-align:center;
+    margin:0 auto;
+  }
+  .pitch__eyebrow{margin-bottom:32px;}
+  .pitch__heading{
+    font-size:clamp(48px,8vw,108px);
+    margin-bottom:36px;
+  }
+  .pitch__body{
+    font-size:clamp(18px,1.6vw,22px);
+    line-height:1.55;
+    color:var(--ink-soft);
+    max-width:620px;margin:0 auto 48px;
+  }
+  .pitch__ctas{
+    display:flex;gap:18px;justify-content:center;align-items:center;
+    flex-wrap:wrap;
+    margin-bottom:42px;
+  }
+  .btn{
+    font-family:var(--sans);
+    font-size:11px;font-weight:500;
+    letter-spacing:.22em;text-transform:uppercase;
+    padding:16px 30px;
+    border-radius:999px;
+    transition:transform .35s var(--ease), background .35s var(--ease), box-shadow .35s var(--ease);
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  .btn--primary{
+    background:var(--forest);
+    color:var(--cream);
+    box-shadow:0 1px 0 rgba(255,255,255,.1) inset, 0 8px 24px -12px rgba(31,46,26,.6);
+  }
+  .btn--primary:hover{background:var(--ink);transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.1) inset, 0 14px 30px -12px rgba(31,46,26,.7);}
+  .btn--ghost{
+    font-family:var(--serif);font-style:italic;font-weight:400;
+    font-size:18px;letter-spacing:0;text-transform:none;
+    color:var(--forest);
+    padding:16px 8px;
+    border-bottom:1px solid var(--forest);
+    border-radius:0;
+  }
+  .btn--ghost:hover{color:var(--ink);border-color:var(--ink);}
+
+  .stars{
+    font-family:var(--serif);font-style:italic;font-weight:300;
+    font-size:15px;
+    color:var(--ink-mute);
+    letter-spacing:.01em;
+  }
+  .stars span{color:var(--gold-deep);letter-spacing:.1em;margin-right:10px;font-style:normal;}
+
+  /* ───────────────── FEATURES ───────────────── */
+  .features{background:var(--paper);}
+  .features__head{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:60px;
+    align-items:end;
+    margin-bottom:72px;
+  }
+  .features__head h2{
+    font-size:clamp(40px,5.4vw,76px);
+  }
+  .features__head p{
+    font-size:18px;
+    color:var(--ink-soft);
+    max-width:440px;
+    line-height:1.55;
+  }
+  .features__head .eyebrow{margin-bottom:24px;display:inline-flex;}
+
+  @media (max-width:900px){
+    .features__head{grid-template-columns:1fr;gap:24px;}
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:18px;
+  }
+  .card{
+    border-radius:18px;
+    padding:42px 38px;
+    position:relative;
+    overflow:hidden;
+    background:var(--cream-warm);
+    transition:transform .6s var(--ease), box-shadow .6s var(--ease);
+    box-shadow:0 1px 2px rgba(31,46,26,.04), 0 8px 30px -22px rgba(31,46,26,.25);
+    min-height:280px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    isolation:isolate;
+  }
+  .card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 1px 2px rgba(31,46,26,.06), 0 24px 50px -28px rgba(31,46,26,.4);
+  }
+  .card__num{
+    font-family:var(--sans);
+    font-size:10px;font-weight:500;
+    letter-spacing:.32em;text-transform:uppercase;
+    color:var(--ink-mute);
+    margin-bottom:18px;
+  }
+  .card__title{
+    font-family:var(--serif);
+    font-weight:300;
+    font-size:32px;
+    line-height:1.1;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    margin-bottom:14px;
+  }
+  .card__title em{font-style:italic;font-weight:300;color:var(--forest);}
+  .card__body{
+    font-family:var(--serif);font-weight:300;
+    font-size:16px;line-height:1.55;
+    color:var(--ink-soft);
+    max-width:34ch;
+  }
+  .card__tag{
+    font-family:var(--serif);font-style:italic;font-weight:400;
+    font-size:13px;
+    color:var(--ink-mute);
+    margin-top:18px;
+  }
+
+  .card--span7{grid-column:span 7;background:var(--sage-pale);min-height:380px;}
+  .card--span5{grid-column:span 5;background:var(--cream-warm);min-height:380px;}
+  .card--span4{grid-column:span 4;}
+  .card--gold{background:var(--gold-soft);}
+  .card--forest{background:var(--forest);color:var(--cream);}
+  .card--forest .card__num{color:var(--gold-soft);}
+  .card--forest .card__title{color:var(--cream);}
+  .card--forest .card__title em{color:var(--gold-soft);}
+  .card--forest .card__body{color:rgba(239,233,212,.78);}
+  .card--forest .card__tag{color:var(--gold-soft);}
+  .card--span12{grid-column:span 12;min-height:240px;}
+
+  @media (max-width:900px){
+    .grid{grid-template-columns:1fr;}
+    .card--span7,.card--span5,.card--span4,.card--span12{grid-column:span 1;}
+    .card{padding:34px 28px;min-height:0;}
+    .card--span7,.card--span5{min-height:0;}
+    .card__title{font-size:28px;}
+  }
+
+  /* Watercolor blob accents */
+  .blob{
+    position:absolute;
+    pointer-events:none;
+    z-index:-1;
+    filter:url(#watercolor);
+    opacity:.55;
+    mix-blend-mode:multiply;
+  }
+  .card--forest .blob{mix-blend-mode:screen;opacity:.35;}
+
+  /* ───────────────── TWO-COLUMN ───────────────── */
+  .two-col{background:var(--paper);}
+  .two-col__head{
+    text-align:center;
+    margin-bottom:72px;
+    max-width:760px;margin-left:auto;margin-right:auto;
+  }
+  .two-col__head .eyebrow{margin-bottom:24px;}
+  .two-col__head h2{font-size:clamp(40px,5.4vw,72px);margin-bottom:24px;}
+  .two-col__head p{
+    color:var(--ink-soft);
+    font-size:18px;line-height:1.6;
+    max-width:560px;margin:0 auto;
+  }
+
+  .two-col__grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:22px;
+  }
+  .pane{
+    border-radius:22px;
+    padding:56px 50px;
+    min-height:480px;
+    display:flex;flex-direction:column;
+    position:relative;overflow:hidden;
+    box-shadow:0 1px 2px rgba(31,46,26,.05), 0 18px 50px -32px rgba(31,46,26,.35);
+  }
+  .pane--sage{background:var(--sage-pale);}
+  .pane--cream{background:var(--cream-warm);}
+
+  .pane__eyebrow{margin-bottom:28px;}
+  .pane__title{
+    font-family:var(--serif);font-weight:300;
+    font-size:clamp(32px,3.4vw,46px);
+    line-height:1.05;letter-spacing:-.02em;
+    color:var(--ink);
+    margin-bottom:22px;
+  }
+  .pane__title em{font-style:italic;color:var(--forest);}
+  .pane__body{
+    font-family:var(--serif);font-weight:300;
+    font-size:17px;line-height:1.55;
+    color:var(--ink-soft);
+    max-width:42ch;
+    margin-bottom:30px;
+  }
+  .pane__list{
+    list-style:none;
+    margin-bottom:42px;
+    flex:1;
+  }
+  .pane__list li{
+    font-family:var(--serif);font-weight:300;
+    font-size:16px;line-height:1.5;
+    color:var(--ink);
+    padding:14px 0 14px 28px;
+    border-bottom:1px solid rgba(31,46,26,.08);
+    position:relative;
+  }
+  .pane__list li:last-child{border-bottom:0;}
+  .pane__list li::before{
+    content:'§';
+    font-family:var(--serif);font-style:italic;
+    color:var(--forest);
+    position:absolute;left:0;top:14px;
+    opacity:.7;
+  }
+  .pane__cta{
+    font-family:var(--serif);font-style:italic;font-weight:400;
+    font-size:18px;
+    color:var(--forest);
+    align-self:flex-start;
+    border-bottom:1px solid var(--forest);
+    padding-bottom:4px;
+    transition:gap .35s var(--ease), color .35s var(--ease);
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .pane__cta:hover{gap:14px;color:var(--ink);}
+
+  @media (max-width:900px){
+    .two-col__grid{grid-template-columns:1fr;}
+    .pane{padding:40px 30px;min-height:0;}
+  }
+
+  /* ───────────────── TESTIMONIALS ───────────────── */
+  .testimonials{background:var(--cream);}
+  .testimonials__head{
+    margin-bottom:72px;
+    max-width:760px;
+  }
+  .testimonials__head .eyebrow{margin-bottom:24px;}
+  .testimonials__head h2{font-size:clamp(40px,5.4vw,72px);}
+
+  .tcards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:22px;
+  }
+  .tcard{
+    background:var(--paper);
+    border-radius:18px;
+    padding:38px 34px;
+    display:flex;flex-direction:column;
+    box-shadow:0 1px 2px rgba(31,46,26,.04), 0 12px 38px -28px rgba(31,46,26,.3);
+    transition:transform .6s var(--ease), box-shadow .6s var(--ease);
+    border:1px solid rgba(31,46,26,.06);
+  }
+  .tcard:hover{transform:translateY(-4px);box-shadow:0 1px 2px rgba(31,46,26,.06), 0 24px 48px -28px rgba(31,46,26,.4);}
+  .tcard__stars{
+    color:var(--gold-deep);
+    letter-spacing:.18em;
+    font-size:14px;
+    margin-bottom:22px;
+  }
+  .tcard__title{
+    font-family:var(--serif);font-style:italic;font-weight:400;
+    font-size:20px;
+    color:var(--forest);
+    margin-bottom:14px;
+  }
+  .tcard__quote{
+    font-family:var(--serif);font-style:italic;font-weight:300;
+    font-size:19px;line-height:1.5;
+    color:var(--ink-soft);
+    margin-bottom:32px;
+    flex:1;
+  }
+  .tcard__meta{
+    display:flex;align-items:center;gap:14px;
+    padding-top:22px;
+    border-top:1px solid rgba(31,46,26,.08);
+  }
+  .tcard__avatar{
+    width:38px;height:38px;border-radius:50%;
+    background:var(--sage-pale);
+    color:var(--forest);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--serif);font-weight:400;
+    font-size:14px;
+    letter-spacing:.02em;
+  }
+  .tcard__name{
+    font-family:var(--serif);font-weight:400;
+    font-size:14px;color:var(--ink);
+  }
+  .tcard__source{
+    font-family:var(--sans);font-size:9px;font-weight:500;
+    letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ink-mute);
+    margin-top:2px;
+  }
+
+  @media (max-width:900px){
+    .tcards{grid-template-columns:1fr;}
+  }
+
+  /* ───────────────── PARTNERS ───────────────── */
+  .partners{background:var(--paper);}
+  .partners__head{
+    text-align:center;
+    margin-bottom:64px;
+    max-width:680px;margin-left:auto;margin-right:auto;
+  }
+  .partners__head .eyebrow{margin-bottom:24px;}
+  .partners__head h2{font-size:clamp(34px,4.4vw,58px);margin-bottom:22px;}
+  .partners__head p{color:var(--ink-soft);font-size:17px;line-height:1.55;}
+
+  .partners__grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:0;
+    border-top:1px solid rgba(31,46,26,.1);
+    border-bottom:1px solid rgba(31,46,26,.1);
+  }
+  .partner{
+    aspect-ratio:1.6/1;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink-mute);
+    font-family:var(--serif);font-style:italic;font-weight:400;
+    font-size:18px;
+    letter-spacing:-.01em;
+    border-right:1px solid rgba(31,46,26,.08);
+    transition:color .4s var(--ease), background .4s var(--ease);
+  }
+  .partner:nth-child(6n){border-right:0;}
+  .partner:hover{color:var(--forest);background:rgba(143,169,120,.1);}
+  @media (max-width:900px){
+    .partners__grid{grid-template-columns:repeat(2,1fr);}
+    .partner{aspect-ratio:2/1;border-right:1px solid rgba(31,46,26,.08);}
+    .partner:nth-child(2n){border-right:0;}
+    .partner:nth-child(odd){border-right:1px solid rgba(31,46,26,.08);}
+  }
+
+  /* ───────────────── CLOSING ───────────────── */
+  .closing{
+    background:var(--paper);
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .closing__bloom{
+    position:absolute;
+    top:50%;left:50%;
+    width:1100px;height:1100px;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(closest-side, rgba(232,165,82,.22), rgba(143,169,120,.16) 40%, transparent 70%);
+    pointer-events:none;
+    z-index:0;
+  }
+  .closing__inner{position:relative;z-index:1;max-width:980px;margin:0 auto;}
+  .closing__quote{
+    font-family:var(--serif);font-style:italic;font-weight:300;
+    font-size:clamp(34px,5.5vw,76px);
+    line-height:1.18;
+    letter-spacing:-.02em;
+    color:var(--ink);
+    margin-bottom:28px;
+  }
+  .closing__quote::before{
+    content:'\201C';
+    font-size:1.2em;
+    color:var(--gold-deep);
+    margin-right:.05em;
+    line-height:0;
+    vertical-align:-.18em;
+  }
+  .closing__quote::after{
+    content:'\201D';
+    font-size:1.2em;
+    color:var(--gold-deep);
+    margin-left:.05em;
+    line-height:0;
+    vertical-align:-.18em;
+  }
+  .closing__attr{
+    font-family:var(--serif);font-style:italic;font-weight:300;
+    color:var(--ink-mute);
+    font-size:16px;
+    margin-bottom:96px;
+  }
+
+  .signup{
+    max-width:520px;margin:0 auto;
+    display:flex;align-items:flex-end;
+    gap:20px;
+    border-bottom:1px solid var(--ink);
+    padding-bottom:14px;
+  }
+  .signup input{
+    flex:1;
+    background:transparent;border:0;outline:0;
+    font-family:var(--serif);font-style:italic;font-weight:300;
+    font-size:20px;color:var(--ink);
+    padding:8px 0;
+  }
+  .signup input::placeholder{color:var(--ink-mute);}
+  .signup button{
+    font-family:var(--sans);font-size:11px;font-weight:500;
+    letter-spacing:.28em;text-transform:uppercase;
+    color:var(--forest);
+    padding:8px 0;
+    transition:color .3s var(--ease);
+  }
+  .signup button:hover{color:var(--ink);}
+
+  /* ───────────────── FOOTER ───────────────── */
+  .footer{
+    background:var(--forest);
+    color:var(--cream);
+    padding:120px clamp(24px,5vw,72px) 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  .footer::before{
+    content:'';
+    position:absolute;
+    top:-1px;left:0;right:0;
+    height:60px;
+    background:linear-gradient(to bottom, var(--paper), var(--forest));
+    opacity:.0;
+  }
+  .footer__grid{
+    display:grid;
+    grid-template-columns:1.4fr 1fr 1fr 1fr;
+    gap:60px;
+    max-width:1280px;margin:0 auto;
+    padding-bottom:80px;
+    border-bottom:1px solid rgba(239,233,212,.16);
+  }
+  .footer__brand{
+    font-family:var(--serif);
+    font-size:46px;font-weight:300;
+    line-height:1;letter-spacing:-.02em;
+    margin-bottom:22px;
+  }
+  .footer__brand em{font-style:italic;}
+  .footer__brand .dot{
+    color:var(--gold);font-style:normal;
+  }
+  .footer__tagline{
+    font-family:var(--serif);font-style:italic;font-weight:300;
+    color:rgba(239,233,212,.72);
+    font-size:16px;line-height:1.5;
+    max-width:280px;
+  }
+  .footer__col h4{
+    font-family:var(--sans);font-size:10px;font-weight:500;
+    letter-spacing:.32em;text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:24px;
+  }
+  .footer__col ul{list-style:none;}
+  .footer__col li{margin-bottom:14px;}
+  .footer__col a{
+    font-family:var(--serif);font-weight:300;
+    font-size:16px;
+    color:rgba(239,233,212,.85);
+    transition:color .3s var(--ease);
+  }
+  .footer__col a:hover{color:var(--cream);}
+  .footer__col a em{font-style:italic;}
+
+  .footer__bottom{
+    max-width:1280px;margin:32px auto 0;
+    display:flex;justify-content:space-between;align-items:center;
+    gap:20px;flex-wrap:wrap;
+    font-family:var(--serif);font-style:italic;font-weight:300;
+    color:rgba(239,233,212,.55);
+    font-size:13px;
+  }
+
+  @media (max-width:900px){
+    .footer__grid{grid-template-columns:1fr;gap:42px;padding-bottom:50px;}
+    .footer__brand{font-size:38px;}
+    .footer{padding:70px 24px 30px;}
+  }
+
+  /* Full-bleed art under footer + same 4-band strip as hero blend, reversed (light → dark) */
+  .post-footer{
+    position:relative;
+    width:100%;
+    line-height:0;
+    background:var(--paper);
+  }
+  .post-footer__img{
+    display:block;
+    width:100%;
+    height:auto;
+    vertical-align:top;
+  }
+  .post-footer__blend{
+    --blend-ash:#5c6058;
+    --blend-stone:#8a8e86;
+    position:absolute;
+    left:0;right:0;top:0;
+    width:100%;
+    height:clamp(14px,2.4vw,22px);
+    pointer-events:none;
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--sage-pale) 52%, var(--blend-stone) 48%) 0%,
+        color-mix(in srgb, var(--sage-pale) 52%, var(--blend-stone) 48%) 19.555%,
+        transparent 19.555%,
+        transparent 26.815%,
+        color-mix(in srgb, var(--forest-mid) 60%, var(--blend-stone) 40%) 26.815%,
+        color-mix(in srgb, var(--forest-mid) 60%, var(--blend-stone) 40%) 46.37%,
+        transparent 46.37%,
+        transparent 53.63%,
+        color-mix(in srgb, var(--forest) 64%, var(--blend-ash) 36%) 53.63%,
+        color-mix(in srgb, var(--forest) 64%, var(--blend-ash) 36%) 73.185%,
+        transparent 73.185%,
+        transparent 80.445%,
+        color-mix(in srgb, var(--ink) 62%, var(--blend-ash) 38%) 80.445%,
+        color-mix(in srgb, var(--ink) 62%, var(--blend-ash) 38%) 100%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--sage-pale) 22%, var(--blend-stone) 78%) 0%,
+        color-mix(in srgb, var(--ink) 28%, var(--blend-ash) 72%) 100%
+      );
+  }
+
+  /* Reduced motion: disable scroll-scrub, autoplay loop instead */
+  @media (prefers-reduced-motion:reduce){
+    .hero{height:100vh;}
+    .hero__sticky{position:relative;}
+    .hero__scroll,.hero__closing{display:none;}
+  }
+
+  /* Reveal-on-scroll utility */
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 1s var(--ease), transform 1s var(--ease);
+  }
+  .reveal.in{opacity:1;transform:none;}
+</style>
+</head>
+<body>
+
+<!-- Watercolor SVG filter (used by .blob accents) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="watercolor" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="22"/>
+    </filter>
+    <filter id="watercolor2" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="3" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="18"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- ─────────────────── NAV ─────────────────── -->
+<header class="nav" id="nav">
+  <div class="nav__brand">
+    <a class="nav__logo" href="#top" aria-label="SneakySwing home">
+      <img src="sneakyswing.png" alt="" width="29" height="29" decoding="async" />
+    </a>
+  </div>
+  <nav class="nav__links" aria-label="Primary">
+    <a href="#method">About</a>
+    <a href="#letters">Writing</a>
+    <a href="#stories">Careers</a>
+  </nav>
+  <a class="nav__cta" href="#get">Get Cofounder</a>
+</header>
+
+<!-- ─────────────────── HERO ─────────────────── -->
+<section class="hero" id="top" aria-label="Sneaky Swing — opening film">
+  <div class="hero__sticky">
+    <div class="hero__loading" id="loading"><span><em>Loading the morning…</em></span></div>
+    <video
+      class="hero__video"
+      id="hero-video"
+      src="sneakyswing-hero.mp4"
+      muted
+      playsinline
+      preload="auto"
+      disablepictureinpicture
+      aria-hidden="true"
+    ></video>
+    <div class="hero__vignette"></div>
+    <div class="hero__grain"></div>
+
+    <div class="hero__closing" id="closing-text" aria-hidden="true">
+      <span><em>Perfect your shot.</em></span>
+    </div>
+
+    <div class="hero__scroll" id="scroll-hint">
+      Scroll
+    </div>
+  </div>
+</section>
+
+<div class="hero__blend" id="hero-blend" aria-hidden="true"></div>
+
+<!-- ─────────────────── PITCH ─────────────────── -->
+<section class="section pitch" id="method">
+  <div class="container pitch__inner">
+    <div class="pitch__eyebrow eyebrow reveal">Powered by AI</div>
+    <h1 class="display pitch__heading reveal">Your AI golf <em>copilot.</em></h1>
+    <p class="pitch__body reveal">
+      SneakySwing helps golfers improve their swings through AI feedback and personalized drills — with real coaches in the loop when you need them.
+    </p>
+    <div class="pitch__ctas reveal">
+      <a class="btn btn--primary" href="#get">Analyze swing now</a>
+      <a class="btn btn--ghost" href="#demo"><em>Watch demo</em> →</a>
+    </div>
+    <p class="stars reveal"><span>★★★★★</span> 5.0 rated on the App Store</p>
+  </div>
+</section>
+
+<!-- ─────────────────── FEATURES ─────────────────── -->
+<section class="section features" id="features">
+  <div class="container">
+    <div class="features__head">
+      <div>
+        <div class="eyebrow reveal">Features 2.0</div>
+        <h2 class="display reveal" style="margin-top:24px">Everything you need to <em>break 80.</em></h2>
+      </div>
+      <p class="reveal">
+        We've combined cutting-edge Gemini AI with biomechanics to create the most comprehensive coaching experience on mobile.
+      </p>
+    </div>
+
+    <div class="grid">
+      <!-- 1. Large feature -->
+      <article class="card card--span7 reveal">
+        <svg class="blob" style="top:-40px;right:-50px;width:280px;height:280px" viewBox="0 0 200 200" aria-hidden="true">
+          <ellipse cx="100" cy="100" rx="80" ry="70" fill="#8FA978"/>
+        </svg>
+        <div>
+          <div class="card__num">No. 01</div>
+          <h3 class="card__title">AI Swing <em>Analysis.</em></h3>
+          <p class="card__body">Instant feedback on 20+ key metrics using advanced computer vision models — from address through follow-through.</p>
+        </div>
+      </article>
+
+      <!-- 2. Medium -->
+      <article class="card card--span5 reveal">
+        <svg class="blob" style="bottom:-50px;left:-40px;width:240px;height:240px" viewBox="0 0 200 200" aria-hidden="true">
+          <ellipse cx="100" cy="100" rx="78" ry="65" fill="#E8A552"/>
+        </svg>
+        <div>
+          <div class="card__num">No. 02</div>
+          <h3 class="card__title">Personalized <em>Drills.</em></h3>
+          <p class="card__body">Custom practice plans tailored specifically to your unique swing faults — refined session by session.</p>
+        </div>
+      </article>
+
+      <!-- 3 / 4 / 5 — three small -->
+      <article class="card card--span4 reveal">
+        <div>
+          <div class="card__num">No. 03</div>
+          <h3 class="card__title">Smart <em>Strategy.</em></h3>
+          <p class="card__body">Data-driven course management advice based on your dispersion patterns.</p>
+        </div>
+      </article>
+
+      <article class="card card--span4 card--gold reveal">
+        <svg class="blob" style="top:-30px;right:-30px;width:200px;height:200px" viewBox="0 0 200 200" aria-hidden="true">
+          <ellipse cx="100" cy="100" rx="70" ry="60" fill="#C77B2E"/>
+        </svg>
+        <div>
+          <div class="card__num">No. 04</div>
+          <h3 class="card__title">Progress <em>Tracking.</em></h3>
+          <p class="card__body">Visualize improvement with beautiful, interactive charts and trend lines.</p>
+        </div>
+      </article>
+
+      <article class="card card--span4 card--forest reveal">
+        <svg class="blob" style="bottom:-40px;right:-30px;width:220px;height:220px" viewBox="0 0 200 200" aria-hidden="true">
+          <ellipse cx="100" cy="100" rx="80" ry="65" fill="#E8A552"/>
+        </svg>
+        <div>
+          <div class="card__num">No. 05</div>
+          <h3 class="card__title">Virtual <em>Competitions.</em></h3>
+          <p class="card__body">Challenge friends and the global community in virtual driving range games.</p>
+        </div>
+        <p class="card__tag">Coming soon</p>
+      </article>
+
+      <!-- 6. Full width -->
+      <article class="card card--span12 reveal" style="background:linear-gradient(118deg, #C8D4B0 0%, #E8DDB8 100%);">
+        <svg class="blob" style="top:-40px;left:30%;width:340px;height:240px" viewBox="0 0 300 200" aria-hidden="true">
+          <ellipse cx="150" cy="100" rx="130" ry="80" fill="#6B8454"/>
+        </svg>
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap;">
+          <div style="max-width:520px">
+            <div class="card__num">No. 06</div>
+            <h3 class="card__title">Pro <em>Comparisons.</em></h3>
+            <p class="card__body">Overlay your swing with top tour pros to identify key differences in posture, tempo, and rotation.</p>
+          </div>
+          <p class="card__tag" style="margin:0">Coming soon</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────── TWO-COLUMN ─────────────────── -->
+<section class="section two-col" id="stories">
+  <div class="container">
+    <div class="two-col__head">
+      <div class="eyebrow reveal" style="display:inline-flex">Two sides of the same game</div>
+      <h2 class="display reveal" style="margin-top:24px">Built for coaches, <em>beloved by students.</em></h2>
+      <p class="reveal">Streamlining the technical workflow for pros while accelerating improvement for players.</p>
+    </div>
+
+    <div class="two-col__grid">
+      <article class="pane pane--sage reveal">
+        <div class="pane__eyebrow eyebrow">For Coaches</div>
+        <h3 class="pane__title">Automated screening <em>& triage.</em></h3>
+        <p class="pane__body">Eliminate manual video review time. Our AI handles the first pass so you can focus on high-value coaching.</p>
+        <ul class="pane__list">
+          <li>Auto-detection of swing faults (Sway, Early Extension)</li>
+          <li>Instant skeletal & angular biomechanics data</li>
+          <li>AI-drafted lesson notes & drill recommendations</li>
+        </ul>
+        <a class="pane__cta" href="#get"><em>Analyze swing now</em> →</a>
+      </article>
+
+      <article class="pane pane--cream reveal">
+        <div class="pane__eyebrow eyebrow">For Students</div>
+        <h3 class="pane__title">A 24/7 <em>feedback loop.</em></h3>
+        <p class="pane__body">Bridge the gap between lessons. Get instant feedback on your practice sessions based on your coach's plan.</p>
+        <ul class="pane__list">
+          <li>Real-time practice analysis & rep counting</li>
+          <li>Visual trend tracking over weeks and months</li>
+          <li>Gamified drills to reinforce technique</li>
+        </ul>
+        <a class="pane__cta" href="#get"><em>Analyze swing now</em> →</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────── TESTIMONIALS ─────────────────── -->
+<section class="section testimonials">
+  <div class="container">
+    <div class="testimonials__head">
+      <div class="eyebrow reveal">Real reviews from the App Store</div>
+      <h2 class="display reveal" style="margin-top:24px">Loved by golfers <em>and coaches alike.</em></h2>
+    </div>
+
+    <div class="tcards">
+      <article class="tcard reveal">
+        <div class="tcard__stars">★★★★★</div>
+        <h3 class="tcard__title">Revolutionary</h3>
+        <p class="tcard__quote">"I have been one of the early beta testers for this app and have been using it for a while. This is unlike all other AI golf apps that just give you a score or feedback, because I actually contact my coach on this platform. It is more than an app, this is the infrastructure for golf coaching of the future."</p>
+        <div class="tcard__meta">
+          <div class="tcard__avatar">zb</div>
+          <div>
+            <div class="tcard__name">zbonmnobwo</div>
+            <div class="tcard__source">App Store</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="tcard reveal">
+        <div class="tcard__stars">★★★★★</div>
+        <h3 class="tcard__title">Recommend this for golf lovers!</h3>
+        <p class="tcard__quote">"The feedback is finally clear and not a wall of text, and it actually tells me what to do next, not just what I did wrong."</p>
+        <div class="tcard__meta">
+          <div class="tcard__avatar">JJ</div>
+          <div>
+            <div class="tcard__name">JiayiJennie</div>
+            <div class="tcard__source">App Store</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="tcard reveal">
+        <div class="tcard__stars">★★★★★</div>
+        <h3 class="tcard__title">Great coach app</h3>
+        <p class="tcard__quote">"Really impressed by how clearly it breaks down the swing. Feels much more personalized than generic golf tips. Super helpful."</p>
+        <div class="tcard__meta">
+          <div class="tcard__avatar">Mo</div>
+          <div>
+            <div class="tcard__name">Momo0335</div>
+            <div class="tcard__source">App Store</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────── PARTNERS ─────────────────── -->
+<section class="section partners">
+  <div class="container">
+    <div class="partners__head">
+      <div class="eyebrow reveal">Collaborations</div>
+      <h2 class="display reveal" style="margin-top:24px">Built with <em>brilliant partners.</em></h2>
+      <p class="reveal">We extend our deepest gratitude to the brilliant minds and dedicated partners who work their hardest to make Perflection AI a reality.</p>
+    </div>
+
+    <div class="partners__grid">
+      <div class="partner"><em>Greenfield</em></div>
+      <div class="partner">FAIRWAY/CO</div>
+      <div class="partner"><em>Brassie</em></div>
+      <div class="partner">LINKS &amp; LANE</div>
+      <div class="partner"><em>Mashie</em></div>
+      <div class="partner">NORTH-NORTH</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────── CLOSING ─────────────────── -->
+<section class="section closing" id="letters">
+  <div class="closing__bloom"></div>
+  <div class="closing__inner">
+    <p class="closing__quote reveal">The game is too difficult to be taken seriously, and too serious to be taken as a game.</p>
+    <p class="closing__attr reveal">— A remark, overheard</p>
+
+    <form class="signup reveal" onsubmit="event.preventDefault();this.querySelector('input').value='';this.querySelector('button').textContent='Thank you';">
+      <input type="email" placeholder="your email, in a quiet moment" required aria-label="Email address" />
+      <button type="submit">Subscribe</button>
+    </form>
+  </div>
+</section>
+
+<!-- ─────────────────── FOOTER ─────────────────── -->
+<footer class="footer" id="get">
+  <div class="footer__grid">
+    <div>
+      <div class="footer__brand">Sneaky<span class="dot">·</span><em>Swing</em></div>
+      <p class="footer__tagline">A quiet AI companion for the long game.</p>
+    </div>
+    <div class="footer__col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#stories">Solutions</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+        <li><a href="#download"><em>Download</em></a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#careers">Careers</a></li>
+        <li><a href="#blog">Blog</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#privacy">Privacy Policy</a></li>
+        <li><a href="#terms">Terms &amp; Conditions</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <span>© 2025 Perflection.AI Inc. All rights reserved.</span>
+    <span><em>Designed with care.</em></span>
+  </div>
+</footer>
+
+<div class="post-footer">
+  <img class="post-footer__img" src="footer.png" alt="" decoding="async" />
+  <div class="post-footer__blend" aria-hidden="true"></div>
+</div>
+
+<script>
+(() => {
+  // ───── Scroll-driven nav state ─────
+  const nav = document.getElementById('nav');
+  const scrollHint = document.getElementById('scroll-hint');
+  const closingText = document.getElementById('closing-text');
+  const heroBlend = document.getElementById('hero-blend');
+  const hero = document.querySelector('.hero');
+
+  // ───── Reveal-on-scroll (intersection observer) ─────
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    }
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ───── Video scroll-scrub with lerp ─────
+  const video = document.getElementById('hero-video');
+  const loading = document.getElementById('loading');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let videoReady = false;
+  let videoDuration = 0;
+  let targetTime = 0;
+  let currentTime = 0;
+  const LERP = 0.5;
+  const DELTA_THRESHOLD = 0.003;
+  const VIDEO_WRITE_FPS = 60;
+  const VIDEO_WRITE_MIN_STEP = 1 / 120;
+  const HERO_PROGRESS_EPSILON = 0.0005;
+  let lastAppliedVideoTime = 0;
+  let lastVideoWriteAt = 0;
+  let lastProgress = -1;
+  let heroStart = 0;
+  let heroRange = 1;
+  // Allocate more scroll distance to the opening swing segment.
+  const SLOW_SCROLL_PORTION = 0.4;
+  const SLOW_VIDEO_PORTION = 0.22;
+
+  // iOS unlock: a single user touch lets us programmatically set currentTime
+  let iosUnlocked = !(/iPad|iPhone|iPod/.test(navigator.userAgent));
+  const unlock = () => {
+    if (iosUnlocked) return;
+    video.play().then(() => {
+      video.pause();
+      iosUnlocked = true;
+    }).catch(() => { iosUnlocked = true; });
+  };
+  document.addEventListener('touchstart', unlock, { once: true, passive: true });
+  document.addEventListener('click', unlock, { once: true });
+
+  const onMeta = () => {
+    videoDuration = video.duration || 7;
+    videoReady = true;
+    video.classList.add('ready');
+    loading.classList.add('hidden');
+    if (reduced) {
+      // Reduced motion: simple autoplay loop
+      video.loop = true;
+      video.play().catch(() => {});
+      return;
+    }
+    // Prime scrub state.
+    try { video.currentTime = 0; } catch (e) {}
+    currentTime = 0;
+    targetTime = 0;
+    requestAnimationFrame(loop);
+  };
+
+  const updateHeroBounds = () => {
+    heroStart = hero.offsetTop;
+    heroRange = Math.max(1, hero.offsetHeight - window.innerHeight);
+  };
+
+  const mapProgressToVideoPortion = (p) => {
+    if (p <= SLOW_SCROLL_PORTION) {
+      return (p / SLOW_SCROLL_PORTION) * SLOW_VIDEO_PORTION;
+    }
+    const tailProgress = (p - SLOW_SCROLL_PORTION) / (1 - SLOW_SCROLL_PORTION);
+    return SLOW_VIDEO_PORTION + tailProgress * (1 - SLOW_VIDEO_PORTION);
+  };
+
+  if (video.readyState >= 1) onMeta();
+  else video.addEventListener('loadedmetadata', onMeta, { once: true });
+  video.addEventListener('canplay', () => {
+    if (!videoReady) onMeta();
+  }, { once: true });
+
+  // rAF-throttled scroll listener
+  let scrollTicking = false;
+  const onScroll = () => {
+    if (!scrollTicking) {
+      scrollTicking = true;
+      requestAnimationFrame(() => {
+        scrollTicking = false;
+        const y = window.scrollY;
+
+        // nav style
+        if (y > window.innerHeight * 0.8) nav.classList.add('scrolled');
+        else nav.classList.remove('scrolled');
+
+        const p = Math.max(0, Math.min(1, (y - heroStart) / heroRange));
+        const pastHero = y >= heroStart + heroRange - 0.5;
+
+        // Strip sits on section boundary; only after full hero scroll (p === 1, video scrub done)
+        if (heroBlend) {
+          if (pastHero) heroBlend.classList.add('is-visible');
+          else heroBlend.classList.remove('is-visible');
+        }
+
+        // hide scroll hint after first scroll
+        if (y > 60) scrollHint.classList.add('faded');
+
+        if (!videoReady || reduced) return;
+        if (Math.abs(p - lastProgress) < HERO_PROGRESS_EPSILON) return;
+        lastProgress = p;
+
+        const videoPortion = mapProgressToVideoPortion(p);
+        targetTime = videoPortion * Math.max(0.1, videoDuration - 0.05);
+        if (p > 0.78) closingText.classList.add('visible');
+        else closingText.classList.remove('visible');
+      });
+    }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', () => {
+    updateHeroBounds();
+    onScroll();
+  });
+  updateHeroBounds();
+  onScroll();
+
+  function loop(now) {
+    if (!videoReady || reduced) return;
+    const delta = targetTime - currentTime;
+    if (Math.abs(delta) > DELTA_THRESHOLD) {
+      currentTime += delta * LERP;
+      if (
+        iosUnlocked &&
+        now - lastVideoWriteAt >= 1000 / VIDEO_WRITE_FPS &&
+        Math.abs(currentTime - lastAppliedVideoTime) >= VIDEO_WRITE_MIN_STEP
+      ) {
+        try {
+          video.currentTime = currentTime;
+          lastAppliedVideoTime = currentTime;
+          lastVideoWriteAt = now;
+        } catch (e) {}
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+
+  // Smooth scroll for in-page links (excluding the hash that drives the hero)
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const id = a.getAttribute('href').slice(1);
+      if (!id) return;
+      const el = document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

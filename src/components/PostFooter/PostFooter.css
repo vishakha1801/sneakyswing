@@ -1,0 +1,29 @@
+.post-footer {
+  position: relative;
+  height: 430px;
+  background: transparent;
+}
+
+.post-footer__fixed {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 430px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.post-footer__drawer {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.post-footer__img {
+  width: 100%;
+  display: block;
+}
